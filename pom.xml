@@ -31,7 +31,8 @@
 		<module>wsdl-module</module>
 		<module>launcher-module</module>
 		<module>importResolver-module</module>
-	</modules>
+        <module>common-module</module>
+    </modules>
 
 	<dependencyManagement>
 		<dependencies>
