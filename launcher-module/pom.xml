@@ -29,6 +29,11 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.ns</groupId>
+            <artifactId>importResolver-module</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!--<dependency>
             <groupId>com.ns</groupId>
             <artifactId>import-module</artifactId>

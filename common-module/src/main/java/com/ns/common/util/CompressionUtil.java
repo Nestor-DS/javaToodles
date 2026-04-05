@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@Slf4j  // Lombok: genera logger automáticamente
+@Slf4j
 @Component
 public class CompressionUtil {
 
@@ -36,7 +36,6 @@ public class CompressionUtil {
             );
         }
 
-        // Validar tamaño total
         long totalSize = files.values().stream()
                 .mapToLong(arr -> arr.length)
                 .sum();
