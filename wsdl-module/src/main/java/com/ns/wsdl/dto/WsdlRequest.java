@@ -1,7 +1,12 @@
 package com.ns.wsdl.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class WsdlRequest {
+
+    @NotBlank(message = "La URL del WSDL es requerida")
     private String wsdlUrl;
+
     private String destination;
 
     public WsdlRequest() {
@@ -35,5 +40,4 @@ public class WsdlRequest {
                 ", destination='" + destination + '\'' +
                 '}';
     }
-
 }

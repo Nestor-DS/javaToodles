@@ -1,11 +1,10 @@
 package com.ns.common.constant;
 
-import lombok.experimental.UtilityClass;
+public final class CompressionConstants {
 
-@UtilityClass
-public class CompressionConstants {
+    private CompressionConstants() {}
 
-    public static final long MAX_ZIP_SIZE = 100 * 1024 * 1024; // 100 MB
+    public static final long MAX_ZIP_SIZE = 100 * 1024 * 1024;
     public static final int MAX_FILES_IN_ZIP = 1000;
     public static final int MAX_FILENAME_LENGTH = 255;
 

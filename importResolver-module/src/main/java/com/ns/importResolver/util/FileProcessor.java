@@ -1,9 +1,9 @@
 package com.ns.importResolver.util;
 
 import org.springframework.stereotype.Component;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class FileProcessor {
@@ -53,15 +53,5 @@ public class FileProcessor {
             }
         }
         return result;
-    }
-
-    public String extractDeclaredPackage(String content) {
-        Matcher matcher = Pattern.compile("^package\\s+([a-zA-Z0-9_.]+)\\s*;", Pattern.MULTILINE).matcher(content);
-        return matcher.find() ? matcher.group(1) : null;
-    }
-
-    public String extractDeclaredClassName(String content) {
-        Matcher matcher = Pattern.compile("class\\s+(\\w+)").matcher(content);
-        return matcher.find() ? matcher.group(1) : null;
     }
 }

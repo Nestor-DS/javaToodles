@@ -17,11 +17,10 @@
     <description>Launcher para arrancar todos los modulos</description>
 
     <dependencies>
-<!--
         <dependency>
             <groupId>com.ns</groupId>
             <artifactId>common-module</artifactId>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>com.ns</groupId>
@@ -51,6 +50,11 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
@@ -62,7 +66,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.ns.launcher.LauncherApplication</mainClass>
+                    <mainClass>com.ns.LauncherApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

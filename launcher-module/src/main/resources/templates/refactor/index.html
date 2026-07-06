@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(content=~{:: .refactor-content})}">
+<head><title>Import Refactor - Toodles</title></head>
+<body>
+<div class="refactor-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-arrow-left-right me-2"></i>Import Refactor</h2>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form hx-post="/refactor/refactorClass-htmx"
+                  hx-target="#result"
+                  hx-indicator="#spinner"
+                  hx-encoding="multipart/form-data">
+                <div class="mb-3">
+                    <label for="files" class="form-label">Archivos Java</label>
+                    <input type="file" name="files" id="files"
+                           class="form-control" multiple accept=".java" required>
+                    <div class="form-text">Selecciona uno o varios archivos .java</div>
+                </div>
+                <div class="mb-3">
+                    <label for="newPackage" class="form-label">Nuevo package</label>
+                    <input type="text" name="newPackage" id="newPackage"
+                           class="form-control" required
+                           placeholder="com.nuevo.paquete">
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <span id="spinner" class="htmx-indicator">
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                    </span>
+                    <i class="bi bi-arrow-repeat"></i> Refactorizar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="result" class="mt-4">
+    </div>
+</div>
+</body>
+</html>

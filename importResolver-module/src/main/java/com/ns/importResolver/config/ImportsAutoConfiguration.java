@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class ImportsAutoConfiguration {
     @PostConstruct
     public void init() {
-        System.out.println("========================");
+        System.out.println("================================");
         System.out.println("IMPORT RESOLVER MODULE LOADED!");
         System.out.println("========================");
     }

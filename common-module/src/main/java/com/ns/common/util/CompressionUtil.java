@@ -2,7 +2,8 @@ package com.ns.common.util;
 
 import com.ns.common.constant.CompressionConstants;
 import com.ns.common.exception.CompressionException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -13,17 +14,14 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@Slf4j
 @Component
 public class CompressionUtil {
 
-    /**
-     * Crea un archivo ZIP a partir de un mapa de archivos (nombre -> contenido)
-     */
+    private static final Logger log = LoggerFactory.getLogger(CompressionUtil.class);
+
     public byte[] createZip(Map<String, byte[]> files) throws CompressionException {
         log.debug("Creando ZIP con {} archivos", files.size());
 
-        // Validaciones usando constantes
         if (files.isEmpty()) {
             throw new CompressionException("No hay archivos para comprimir", "COMPRESSION_100");
         }
@@ -48,7 +46,6 @@ public class CompressionUtil {
             );
         }
 
-        // Validar nombres de archivos
         for (String fileName : files.keySet()) {
             if (fileName == null || fileName.isEmpty()) {
                 throw new CompressionException("Nombre de archivo vacío o nulo", "COMPRESSION_103");
@@ -65,7 +62,6 @@ public class CompressionUtil {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ZipOutputStream zos = new ZipOutputStream(baos)) {
 
-            // Usar nivel de compresión desde constantes
             zos.setLevel(CompressionConstants.COMPRESSION_LEVEL_DEFAULT);
 
             for (Map.Entry<String, byte[]> entry : files.entrySet()) {
@@ -92,9 +88,6 @@ public class CompressionUtil {
         }
     }
 
-    /**
-     * Comprime una lista de clases Java
-     */
     public byte[] compressClasses(List<Class<?>> classes) throws CompressionException {
         log.debug("Comprimiendo {} clases", classes.size());
 
@@ -123,9 +116,6 @@ public class CompressionUtil {
         return createZip(files);
     }
 
-    /**
-     * Comprime datos genéricos en un solo archivo
-     */
     public byte[] compressData(byte[] data, String entryName) throws CompressionException {
         log.debug("Comprimiendo datos ({} bytes) como: {}", data.length, entryName);
 
@@ -140,17 +130,11 @@ public class CompressionUtil {
         return createZip(Map.of(entryName, data));
     }
 
-    /**
-     * Comprime un solo archivo
-     */
     public byte[] compressFile(String fileName, byte[] content) throws CompressionException {
         log.debug("Comprimiendo archivo: {}", fileName);
         return createZip(Map.of(fileName, content));
     }
 
-    /**
-     * Obtiene los bytes de una clase
-     */
     private byte[] getClassBytes(Class<?> clazz) throws IOException {
         String resourceName = "/" + clazz.getName().replace('.', '/') + ".class";
 
@@ -162,9 +146,6 @@ public class CompressionUtil {
         }
     }
 
-    /**
-     * Crea ZIP con nivel de compresión personalizado
-     */
     public byte[] createZipWithLevel(Map<String, byte[]> files, int compressionLevel)
             throws CompressionException {
 

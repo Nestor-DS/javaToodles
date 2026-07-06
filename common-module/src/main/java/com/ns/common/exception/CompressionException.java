@@ -1,10 +1,5 @@
 package com.ns.common.exception;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-@Data
-@EqualsAndHashCode(callSuper = true)
 public class CompressionException extends RuntimeException {
 
     private String errorCode;
@@ -29,4 +24,9 @@ public class CompressionException extends RuntimeException {
         super(message, cause);
         this.errorCode = errorCode;
     }
+
+    public String getErrorCode() { return errorCode; }
+    public void setErrorCode(String errorCode) { this.errorCode = errorCode; }
+    public String getTechnicalDetails() { return technicalDetails; }
+    public void setTechnicalDetails(String technicalDetails) { this.technicalDetails = technicalDetails; }
 }

@@ -1,132 +1,89 @@
 package com.ns.wsdl.service;
 
+import com.ns.common.util.CompressionUtil;
 import com.ns.wsdl.dto.WsdlRequest;
-import com.ns.wsdl.dto.WsdlResponse;
-import com.ns.wsdl.util.AxisApiGenerator;
+import com.ns.wsdl.util.AxisExecutor;
+import com.ns.wsdl.util.DirectoryCleaner;
+import com.ns.wsdl.util.WsdlDownloader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
 public class WsdlServiceImpl implements WsdlService {
 
-    private static final String DEFAULT_DIR = "C:\\wsdl2";
+    private static final Logger log = LoggerFactory.getLogger(WsdlServiceImpl.class);
+
+    private final WsdlDownloader wsdlDownloader;
+    private final AxisExecutor axisExecutor;
+    private final DirectoryCleaner directoryCleaner;
+    private final CompressionUtil compressionUtil;
+
+    public WsdlServiceImpl(WsdlDownloader wsdlDownloader,
+                           AxisExecutor axisExecutor,
+                           DirectoryCleaner directoryCleaner,
+                           CompressionUtil compressionUtil) {
+        this.wsdlDownloader = wsdlDownloader;
+        this.axisExecutor = axisExecutor;
+        this.directoryCleaner = directoryCleaner;
+        this.compressionUtil = compressionUtil;
+    }
 
     @Override
-    public WsdlResponse processWsdl(WsdlRequest request) {
+    public WsdlProcessResult processWsdl(WsdlRequest request) {
+        Path tempDir = null;
         try {
-            if (request.getWsdlUrl() == null || request.getWsdlUrl().isEmpty()) {
-                return new WsdlResponse(false, "URL WSDL requerida");
+            if (request.getWsdlUrl() == null || request.getWsdlUrl().isBlank()) {
+                return new WsdlProcessResult(false, "URL WSDL requerida", null, 0);
             }
 
-            String destination = request.getDestination();
-            if (destination == null || destination.isEmpty()) {
-                destination = DEFAULT_DIR;
-            }
-
-            Path destPath = Paths.get(destination);
-            Files.createDirectories(destPath);
-
-            Path srcDir = destPath.resolve("src");
+            tempDir = Files.createTempDirectory("wsdl-");
+            Path srcDir = tempDir.resolve("src");
             Files.createDirectories(srcDir);
 
-            Path wsdlFile = destPath.resolve("Service.wsdl");
+            Path wsdlFile = tempDir.resolve("Service.wsdl");
+            wsdlDownloader.download(request.getWsdlUrl(), wsdlFile);
 
-            downloadWsdl(request.getWsdlUrl(), wsdlFile);
+            axisExecutor.execute(wsdlFile.toString(), srcDir.toString());
 
-            AxisApiGenerator.execute(wsdlFile.toString(), srcDir.toString());
+            directoryCleaner.flattenAndClean(srcDir);
 
-            flattenClasses(srcDir);
-
-            cleanUnwantedFiles(srcDir);
-
-            boolean generated = containsJavaFiles(srcDir);
-            if (generated) {
-                return new WsdlResponse(true, "Classes generated correctly in: "+ srcDir.toString());
+            List<Path> javaFiles;
+            try (Stream<Path> stream = Files.walk(srcDir)) {
+                javaFiles = stream.filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(".java"))
+                        .toList();
             }
 
-            return new WsdlResponse(false, "Axis2 did not generate classes. Check WSDL or logs.");
+            if (javaFiles.isEmpty()) {
+                return new WsdlProcessResult(false,
+                        "Axis2 no generó clases. Verifica el WSDL.", null, 0);
+            }
+
+            Map<String, byte[]> fileMap = new LinkedHashMap<>();
+            for (Path file : javaFiles) {
+                fileMap.put(file.getFileName().toString(), Files.readAllBytes(file));
+            }
+
+            byte[] zipContent = compressionUtil.createZip(fileMap);
+            return new WsdlProcessResult(true,
+                    "Generadas " + javaFiles.size() + " clases", zipContent, javaFiles.size());
 
         } catch (Exception e) {
-            String message = "Axis2 did not generate classes: " + e.getMessage();
-            return new WsdlResponse(false, message);
+            log.error("Error processing WSDL", e);
+            return new WsdlProcessResult(false,
+                    "Error: " + e.getMessage(), null, 0);
+        } finally {
+            if (tempDir != null) {
+                directoryCleaner.deleteDirectory(tempDir);
+            }
         }
     }
-
-    private void downloadWsdl(String wsdlUrl, Path target) throws Exception {
-        try (InputStream in = new URL(wsdlUrl).openStream()) {
-            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-        }
-    }
-
-    private boolean containsJavaFiles(Path dir) throws Exception {
-        try (Stream<Path> stream = Files.walk(dir)) {
-            return stream.filter(Files::isRegularFile)
-                    .anyMatch(p -> p.toString().endsWith(".java"));
-        }
-    }
-
-    private void flattenClasses(Path srcDir) throws Exception {
-        if (!Files.exists(srcDir)) return;
-
-        try (Stream<Path> stream = Files.walk(srcDir)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".java"))
-                    .forEach(file -> {
-                        try {
-                            Path target = srcDir.resolve(file.getFileName());
-                            if (!file.equals(target)) {
-                                Files.move(file, target, StandardCopyOption.REPLACE_EXISTING);
-                            }
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-        deleteEmptyDirectories(srcDir);
-    }
-
-    private void deleteEmptyDirectories(Path root) throws Exception {
-        Files.walk(root)
-                .sorted(Comparator.reverseOrder())
-                .filter(Files::isDirectory)
-                .forEach(dir -> {
-                    try (Stream<Path> files = Files.list(dir)) {
-                        if (!dir.equals(root) && !files.findAny().isPresent()) {
-                            Files.delete(dir);
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-    }
-
-    private void cleanUnwantedFiles(Path srcDir) throws Exception {
-        if (!Files.exists(srcDir)) return;
-
-        try (Stream<Path> stream = Files.walk(srcDir)) {
-            stream.filter(Files::isRegularFile)
-                    .filter(file -> {
-                        String name = file.getFileName().toString();
-                        return name.equalsIgnoreCase("build.xml")
-                                || name.equalsIgnoreCase("build.properties")
-                                || name.equalsIgnoreCase("pom.xml");
-                    })
-                    .forEach(file -> {
-                        try {
-                            Files.deleteIfExists(file);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-    }
-
 }

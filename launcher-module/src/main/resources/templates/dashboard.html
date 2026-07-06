@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(content=~{:: .dashboard-content})}">
+<head><title>Dashboard - Toodles</title></head>
+<body>
+<div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <a href="/wsdl" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-file-code text-primary" style="font-size: 3rem;"></i>
+                        <h4 class="mt-3">WSDL Generator</h4>
+                        <p class="text-muted">Genera clases Java desde un WSDL usando Axis2.</p>
+                        <span class="badge bg-primary fs-6">Abrir herramienta &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="/refactor" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-arrow-left-right text-success" style="font-size: 3rem;"></i>
+                        <h4 class="mt-3">Import Refactor</h4>
+                        <p class="text-muted">Refactoriza imports y paquetes de archivos Java.</p>
+                        <span class="badge bg-success fs-6">Abrir herramienta &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

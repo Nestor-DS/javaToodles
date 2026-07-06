@@ -41,21 +41,17 @@
 				<artifactId>common-module</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.ns</groupId>
-				<artifactId>wsdl-module</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ns</groupId>
-				<artifactId>import-module</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ns</groupId>
-				<artifactId>status-module</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+            <dependency>
+                <groupId>com.ns</groupId>
+                <artifactId>wsdl-module</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ns</groupId>
+                <artifactId>importResolver-module</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
